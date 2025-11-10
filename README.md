@@ -279,7 +279,7 @@ This project is for **educational purposes only**. Use responsibly and legally.
 
 ---
 
-## 🙏 Credits
+## Credits
 
 Built with ESP8266 Arduino Core  
 Inspired by WiFi security research community  
