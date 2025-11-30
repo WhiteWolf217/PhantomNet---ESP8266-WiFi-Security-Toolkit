@@ -1,0 +1,173 @@
+👻 PHANTOMNET - QUICK START GUIDE
+==================================
+
+🚀 FASTEST WAY TO GET STARTED
+------------------------------
+
+STEP 1: Install Arduino IDE
+----------------------------
+Download from: https://www.arduino.cc/en/software
+Install and run Arduino IDE
+
+STEP 2: Add ESP8266 Board Support
+----------------------------------
+1. Open Arduino IDE
+2. File → Preferences
+3. In "Additional Boards Manager URLs" paste:
+   http://arduino.esp8266.com/stable/package_esp8266com_index.json
+4. Click OK
+5. Tools → Board → Boards Manager
+6. Search "ESP8266"
+7. Install "ESP8266 by ESP8266 Community"
+
+STEP 3: Connect Your ESP8266
+-----------------------------
+1. Plug ESP8266 into USB port
+2. Tools → Board → ESP8266 Boards → Select your model
+   (NodeMCU 1.0, Wemos D1 Mini, Generic ESP8266, etc.)
+3. Tools → Port → Select your COM port
+   (e.g., COM3, COM4, COM5)
+
+STEP 4: Upload PhantomNet
+--------------------------
+1. Open: wifijam_esp8266/wifijam_esp8266.ino
+2. Click Upload button (→) or press Ctrl+U
+3. Wait for "Done uploading" message
+
+STEP 5: Open Serial Monitor
+----------------------------
+1. Click Serial Monitor icon (🔍) or press Ctrl+Shift+M
+2. Set baud rate to: 115200
+3. You'll see the PhantomNet menu!
+
+📱 HOW TO USE
+-------------
+
+MENU OPTIONS:
+1 - Scan Networks          (Find WiFi networks nearby)
+2 - Set Target            (Choose network to clone)
+3 - Start Jammer          (Beacon flood attack)
+4 - Stop Jammer           (Stop flooding)
+5 - Evil Twin             (Start fake AP + capture passwords)
+6 - Stop Evil Twin        (Stop attack, show captured passwords)
+7 - Show Menu             (Display menu again)
+
+🎯 EVIL TWIN ATTACK (Password Capture):
+----------------------------------------
+1. Press 1 → Scan networks
+2. Press 2 → Type target SSID name (e.g., "MyWiFi")
+3. Press 5 → Start Evil Twin
+4. Wait for victim to connect
+5. When they enter password → YOU GET IT! 🎯
+6. Press 6 → Stop and see captured password
+
+💥 BEACON JAMMER:
+-----------------
+1. Press 1 → Scan networks
+2. Press 2 → Type target SSID
+3. Press 3 → Start jammer
+4. Watch hundreds of fake APs flood the channel
+5. Press 4 → Stop jammer
+
+📊 LIVE STATUS TABLE:
+---------------------
+╔═══════════════╦═════════════╦══════════╦═══════════════╗
+║ Target        │ Jammer      │ Evil Twin│ Devices       ║
+╠═══════════════╬═════════════╬══════════╬═══════════════╣
+║ MyWiFi        │ OFF         │ ON       │ 2             ║
+╚═══════════════╩═════════════╩══════════╩═══════════════╝
+
+- Target: Network you're attacking
+- Jammer: ON when beacon flooding
+- Evil Twin: ON when fake AP running
+- Devices: Number of victims connected
+
+🔥 WHAT EVIL TWIN DOES:
+-----------------------
+✅ Creates fake AP with same name as target
+✅ Captive portal redirects ALL web traffic
+✅ Shows realistic "Router Update" login page
+✅ Captures password when user enters it
+✅ ACCEPTS ANY PASSWORD (user connects anyway!)
+✅ User sees "Connected Successfully!" message
+✅ User never knows password was stolen
+✅ You see password in Serial Monitor instantly
+
+CAPTURED PASSWORD EXAMPLE:
+🎯 PASSWORD CAPTURED! 🎯
+SSID: MyHomeWiFi
+Password: MySecretPass123
+====================
+
+⚠️ TROUBLESHOOTING
+------------------
+❌ Upload Failed
+   → Check correct COM port selected
+   → Hold FLASH button during upload
+   → Try different USB cable
+
+❌ No Serial Output
+   → Set baud rate to 115200
+   → Press Reset button on ESP8266
+   → Check "Both NL & CR" line ending
+
+❌ Evil Twin Not Working
+   → Stop jammer first (option 4)
+   → Make sure target is set (option 2)
+   → Reset ESP8266 and try again
+
+❌ Can't Find COM Port
+   → Open Device Manager (Windows)
+   → Look under "Ports (COM & LPT)"
+   → Install CH340/CP2102 drivers if needed
+
+🛡️ LEGAL WARNING
+-----------------
+⚠️⚠️⚠️ ONLY USE ON NETWORKS YOU OWN! ⚠️⚠️⚠️
+
+ILLEGAL:
+❌ Attacking others' WiFi networks
+❌ Capturing passwords without permission
+❌ Using in public spaces
+❌ Interfering with WiFi signals
+
+LEGAL:
+✅ Testing YOUR OWN network security
+✅ Educational purposes (your lab only)
+✅ Authorized penetration testing
+✅ Cybersecurity research/training
+
+CONSEQUENCES:
+💰 Heavy fines
+⚖️ Criminal charges
+🔒 Jail time
+📡 FCC violations
+
+YOU ARE RESPONSIBLE FOR YOUR ACTIONS!
+
+📚 NEED MORE HELP?
+------------------
+→ See README.md for full documentation
+→ See WHY_NOT_WORKING.md for troubleshooting
+→ See ARDUINO_SETUP.md for detailed setup
+
+🎓 LEARNING RESOURCES
+---------------------
+- WiFi Security: https://en.wikipedia.org/wiki/Evil_twin_(wireless_networks)
+- ESP8266 Docs: https://arduino-esp8266.readthedocs.io
+- 802.11 Frames: https://en.wikipedia.org/wiki/802.11_Frame_Types
+
+💡 PRO TIPS
+-----------
+→ Keep Serial Monitor open to see live updates
+→ Device counter updates every 2 seconds
+→ Evil Twin works best on 2.4GHz networks
+→ Jammer and Evil Twin can't run simultaneously
+→ Multiple passwords can be captured in one session
+→ Press 7 anytime to see menu and current status
+
+🚀 READY TO GO!
+---------------
+Your PhantomNet is now ready. Use it responsibly and legally!
+
+Remember: With great power comes great responsibility! 👻🛡️
